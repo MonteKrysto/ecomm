@@ -1,0 +1,7 @@
+node_modules
+backend/.env
+/.cache
+/build
+/public/build
+.env
+.history
