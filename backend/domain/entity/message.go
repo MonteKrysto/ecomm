@@ -8,6 +8,7 @@ import (
 
 type Message struct {
 	ID         uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	UserID uuid.UUID
 	Content    string
 	SenderID   uuid.UUID
 	ReceiverID uuid.UUID

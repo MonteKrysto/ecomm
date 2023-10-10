@@ -1,44 +1,81 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: ecomm
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
-
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile
+      target: dev
     depends_on:
       - postgres
       - redis
     ports:
       - "8080:8080"
-
-  frontend:
-    build:
-      context: ./frontend
-    command: npm run dev
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    networks:
+      - ecomm_network
+  # postgres:
+  #   image: postgres:latest
+  #   environment:
+  #     POSTGRES_USER: admin
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: ecomm
+  #   ports:
+  #     - "5433:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - ecomm_network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U admin"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+      - "5433:5432"
+    env_file:
+      - ./.env  # adjust path as necessary
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ecomm_network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - ecomm_network
+
+
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #   command: npm run dev
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - ecomm_network
 
 volumes:
   postgres_data:
 
+# networks:
+#   default:
+#     external:
+#       name: my_network
 networks:
-  default:
-    external:
-      name: my_network
+  ecomm_network:
+    driver: bridge

@@ -2,6 +2,9 @@ package db
 
 import (
 	"fmt"
+	"log"
+	"os"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -9,12 +12,21 @@ import (
 )
 
 func InitDB() (*gorm.DB, error) {
-	dsn := fmt.Sprintf("user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", "user", "password", "dbname", "5432")
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	dbName := os.Getenv("DB_NAME")
+	dbPort := os.Getenv("DB_PORT")
+
+	connStr := fmt.Sprintf("CONNECTION STRING: user=%s password=%s dbname=%s port=%s host=%s sslmode=disable", dbUser, dbPassword, dbName, dbPort, dbHost)
+	log.Printf("Connection %s", connStr)
+	dsn := fmt.Sprintf("user=%s password=%s dbname=%s port=%s host=%s sslmode=disable", dbUser, dbPassword, dbName, dbPort, dbHost)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Println("MIGRATING DB")
 	// Migrate the schema
 	db.AutoMigrate(
 		&entity.User{},
@@ -27,7 +39,7 @@ func InitDB() (*gorm.DB, error) {
 	)
 
 	// Create UUID extension
-	db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
+	// db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
 
 	return db, nil
 }

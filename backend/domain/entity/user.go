@@ -14,8 +14,8 @@ type User struct {
 	ProfilePicture string
 	Roles          []Role     `gorm:"many2many:user_roles;"`
 	Campaigns      []Campaign `gorm:"foreignKey:CreatorID"`
-	Messages       []Message
-	Notifications  []Notification
+	Messages       []Message `gorm:"foreignKey:UserID"`
+	Notifications  []Notification `gorm:"foreignKey:UserID"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }
