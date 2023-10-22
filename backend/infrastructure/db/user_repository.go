@@ -16,7 +16,17 @@ func NewUserRepository(db *gorm.DB) repository.UserRepository {
 }
 
 func (repo *UserRepositoryImpl) Create(user entity.User) error {
-	return repo.db.Create(&user).Error
+	err := repo.db.Create(&user).Error
+
+	if err != nil {
+		// Handle specific errors as per your requirements, for example:
+		// if strings.Contains(err.Error(), "duplicate") || strings.Contains(err.Error(), "Duplicate") {
+		// 	return fmt.Errorf("email already in use")
+		// }
+		return err
+	}
+
+	return nil
 }
 
 func (repo *UserRepositoryImpl) GetAll() ([]entity.User, error) {
